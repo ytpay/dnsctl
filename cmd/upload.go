@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/gozap/gdnsctl/gdns"
+	"github.com/gozap/dnsctl/etcdhosts"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +12,7 @@ var uploadCmd = &cobra.Command{
 		if len(args) != 1 {
 			_ = cmd.Help()
 		} else {
-			gdns.Upload(args[0])
+			etcdhosts.Upload(args[0])
 		}
 	},
 }

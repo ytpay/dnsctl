@@ -2,18 +2,17 @@ package cmd
 
 import (
 	"github.com/gozap/dnsctl/etcdhosts"
-
 	"github.com/spf13/cobra"
 )
 
-var editCmd = &cobra.Command{
-	Use:   "edit",
-	Short: "edit hosts",
+var historyCmd = &cobra.Command{
+	Use:   "history",
+	Short: "show hosts history",
 	Run: func(cmd *cobra.Command, args []string) {
-		etcdhosts.Edit()
+		etcdhosts.History()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(editCmd)
+	rootCmd.AddCommand(historyCmd)
 }

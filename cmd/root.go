@@ -9,10 +9,9 @@ import (
 
 var cfgFile string
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "gdnsctl",
-	Short: "gdnsctl",
+	Use:   "dnsctl",
+	Short: "dnsctl for etcdhosts plugin",
 	Run:   func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
 }
 
@@ -24,28 +23,27 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig, initLog)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gdnsctl.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dnsctl.yaml)")
 }
 
-// initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
-		// Search config in home directory with name ".gdnsctl" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".gdnsctl")
+		viper.SetConfigName(".dnsctl")
 	}
 
 	viper.AutomaticEnv()
-	_ = viper.ReadInConfig()
+	err := viper.ReadInConfig()
+	if err != nil {
+		logrus.Fatal(err)
+	}
 }
 
 func initLog() {

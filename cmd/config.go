@@ -10,7 +10,7 @@ var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "show example config",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Print(`dnskey: /gdns
+		fmt.Print(`dnskey: /etcdhosts
 etcd:
   cert: /etc/etcd/ssl/etcd.pem
   key: /etc/etcd/ssl/etcd-key.pem

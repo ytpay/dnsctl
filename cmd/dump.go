@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/gozap/gdnsctl/gdns"
+	"github.com/gozap/dnsctl/etcdhosts"
 
 	"github.com/spf13/cobra"
 )
@@ -12,7 +12,7 @@ var dumpCmd = &cobra.Command{
 	Use:   "dump",
 	Short: "dump hosts",
 	Run: func(cmd *cobra.Command, args []string) {
-		gdns.Dump(dumpFile)
+		etcdhosts.Dump(dumpFile)
 	},
 }
 
