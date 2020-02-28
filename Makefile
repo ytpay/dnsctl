@@ -10,10 +10,10 @@ all: clean
                     -X 'github.com/gozap/dnsctl/cmd.CommitID=${COMMIT_SHA1}'"
 
 release: all
-	ghr -u mritd -t $(GITHUB_TOKEN) -replace -recreate --debug ${BUILD_VERSION} dist
+	ghr -u gozap -t $(GITHUB_TOKEN) -replace -recreate --debug ${BUILD_VERSION} dist
 
 pre-release: all
-	ghr -u mritd -t $(GITHUB_TOKEN) -replace -recreate -prerelease --debug ${BUILD_VERSION} dist
+	ghr -u gozap -t $(GITHUB_TOKEN) -replace -recreate -prerelease --debug ${BUILD_VERSION} dist
 
 clean:
 	rm -rf dist
