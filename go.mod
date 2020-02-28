@@ -1,15 +1,15 @@
 module github.com/gozap/dnsctl
 
-go 1.13
+go 1.14
 
 require (
 	github.com/google/uuid v1.1.1 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mritd/promptx v0.0.0-20191026063319-27892afe8e3a
 	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.6.2
-	go.etcd.io/etcd v0.5.0-alpha.5.0.20191023171146-3cf2f69b5738
-	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
+	go.etcd.io/etcd v0.5.0-alpha.5.0.20200224211402-c65a9e2dd1fd
+	sigs.k8s.io/yaml v1.2.0 // indirect
 )
