@@ -151,7 +151,7 @@ func getHostsHistory() vHostsList {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		resp, err := cli.Get(ctx, key, clientv3.WithRev(i))
 		if err != nil {
-			goto done
+			break
 		}
 		vl = append(vl, vHosts{
 			Version:  resp.Kvs[0].Version,
@@ -160,7 +160,6 @@ func getHostsHistory() vHostsList {
 		})
 		cancel()
 	}
-done:
 	sort.Sort(vl)
 	return vl
 }
