@@ -6,8 +6,9 @@ import (
 )
 
 var historyCmd = &cobra.Command{
-	Use:   "history",
-	Short: "show hosts history",
+	Use:    "history",
+	Short:  "show hosts history",
+	PreRun: initConfig,
 	Run: func(cmd *cobra.Command, args []string) {
 		etcdhosts.History()
 	},

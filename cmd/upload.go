@@ -6,8 +6,9 @@ import (
 )
 
 var uploadCmd = &cobra.Command{
-	Use:   "upload FILE",
-	Short: "upload hosts from file",
+	Use:    "upload FILE",
+	Short:  "upload hosts from file",
+	PreRun: initConfig,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
 			_ = cmd.Help()

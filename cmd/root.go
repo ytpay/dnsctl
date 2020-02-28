@@ -43,13 +43,13 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig, initLog)
+	cobra.OnInitialize(initLog)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dnsctl.yaml)")
 	banner, _ := base64.StdEncoding.DecodeString(bannerBase64)
 	rootCmd.SetVersionTemplate(fmt.Sprintf(versionTpl, banner, Version, runtime.GOOS+"/"+runtime.GOARCH, BuildDate, CommitID))
 }
 
-func initConfig() {
+func initConfig(_ *cobra.Command, _ []string) {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 	} else {

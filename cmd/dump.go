@@ -9,8 +9,9 @@ import (
 var dumpFile string
 
 var dumpCmd = &cobra.Command{
-	Use:   "dump",
-	Short: "dump hosts",
+	Use:    "dump",
+	Short:  "dump hosts",
+	PreRun: initConfig,
 	Run: func(cmd *cobra.Command, args []string) {
 		etcdhosts.Dump(dumpFile)
 	},

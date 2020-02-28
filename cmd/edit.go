@@ -7,8 +7,9 @@ import (
 )
 
 var editCmd = &cobra.Command{
-	Use:   "edit",
-	Short: "edit hosts",
+	Use:    "edit",
+	Short:  "edit hosts",
+	PreRun: initConfig,
 	Run: func(cmd *cobra.Command, args []string) {
 		etcdhosts.Edit()
 	},
