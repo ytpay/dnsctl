@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"encoding/base64"
+	"fmt"
+	"runtime"
+
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -9,10 +13,27 @@ import (
 
 var cfgFile string
 
+var bannerBase64 = "ICAgICAgICAgICAgICAgICAgICAgICAgICAgXyAgCiAgIHwgICAgICAgICAgICAgICAgICAgICAgfCB8IAogX198ICAgXyAgXyAgICAsICAgX18gX3xfIHwgfCAKLyAgfCAgLyB8LyB8ICAvIFxfLyAgICB8ICB8LyAgClxfL3xfLyAgfCAgfF8vIFwvIFxfX18vfF8vfF9fLwo="
+
+var versionTpl = `%s
+Name: dnsctl
+Version: %s
+Arch: %s
+BuildDate: %s
+CommitID: %s
+`
+
+var (
+	Version   string
+	BuildDate string
+	CommitID  string
+)
+
 var rootCmd = &cobra.Command{
-	Use:   "dnsctl",
-	Short: "dnsctl for etcdhosts plugin",
-	Run:   func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
+	Use:     "dnsctl",
+	Version: Version,
+	Short:   "dnsctl for etcdhosts plugin",
+	Run:     func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
 }
 
 func Execute() {
@@ -24,6 +45,8 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig, initLog)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dnsctl.yaml)")
+	banner, _ := base64.StdEncoding.DecodeString(bannerBase64)
+	rootCmd.SetVersionTemplate(fmt.Sprintf(versionTpl, banner, Version, runtime.GOOS+"/"+runtime.GOARCH, BuildDate, CommitID))
 }
 
 func initConfig() {
