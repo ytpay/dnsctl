@@ -6,7 +6,10 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 	"sort"
+	"strings"
 	"time"
+
+	"github.com/mitchellh/go-homedir"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -26,12 +29,32 @@ func (v vHostsList) Len() int           { return len(v) }
 func (v vHostsList) Less(i, j int) bool { return v[i].Version > v[j].Version }
 
 func client() *clientv3.Client {
-	etcdCA, err := ioutil.ReadFile(viper.GetString("etcd.ca"))
+
+	home, err := homedir.Dir()
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	etcdClientCert, err := tls.LoadX509KeyPair(viper.GetString("etcd.cert"), viper.GetString("etcd.key"))
+	ca := viper.GetString("etcd.ca")
+	cert := viper.GetString("etcd.cert")
+	key := viper.GetString("etcd.key")
+
+	if strings.HasPrefix(ca, "~") {
+		ca = strings.Replace(ca, "~", home, 1)
+	}
+	if strings.HasPrefix(cert, "~") {
+		cert = strings.Replace(cert, "~", home, 1)
+	}
+	if strings.HasPrefix(key, "~") {
+		key = strings.Replace(key, "~", home, 1)
+	}
+
+	etcdCA, err := ioutil.ReadFile(ca)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	etcdClientCert, err := tls.LoadX509KeyPair(cert, key)
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -124,20 +147,18 @@ func getHostsHistory() vHostsList {
 	}
 
 	vl := vHostsList{}
-	ch := cli.Watch(context.Background(), key, clientv3.WithRev(getResp.Kvs[0].CreateRevision))
-	for {
-		select {
-		case resp := <-ch:
-			for _, e := range resp.Events {
-				vl = append(vl, vHosts{
-					Version:  e.Kv.Version,
-					Revision: e.Kv.ModRevision,
-					Hosts:    string(e.Kv.Value),
-				})
-			}
-		case <-time.After(300 * time.Millisecond):
+	for i := getResp.Header.Revision; i > 0; i-- {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		resp, err := cli.Get(ctx, key, clientv3.WithRev(i))
+		if err != nil {
 			goto done
 		}
+		vl = append(vl, vHosts{
+			Version:  resp.Kvs[0].Version,
+			Revision: i,
+			Hosts:    string(resp.Kvs[0].Value),
+		})
+		cancel()
 	}
 done:
 	sort.Sort(vl)
