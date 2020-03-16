@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"io/ioutil"
 	"sort"
 	"strings"
@@ -95,7 +96,7 @@ func putHosts(hosts string) {
 	}
 }
 
-func getHosts() string {
+func getHosts(revision int64) (string, error) {
 	cli := client()
 	defer func() { _ = cli.Close() }()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -107,23 +108,27 @@ func getHosts() string {
 		key = "/etcdhosts"
 	}
 
-	resp, err := cli.Get(ctx, key)
+	var resp *clientv3.GetResponse
+	var err error
+	if revision > -1 {
+		resp, err = cli.Get(ctx, key, clientv3.WithRev(revision))
+	} else {
+		resp, err = cli.Get(ctx, key)
+	}
+
 	if err != nil {
-		logrus.Error(err)
-		return ""
+		return "", err
 	}
 
 	if len(resp.Kvs) == 0 {
-		logrus.Error("etcd Hosts not exist")
-		return ""
+		return "", errors.New("etcd Hosts not exist")
 	}
 
 	if len(resp.Kvs) > 1 {
-		logrus.Error("too many etcd Hosts")
-		return ""
+		return "", errors.New("too many etcd Hosts")
 	}
 
-	return string(resp.Kvs[0].Value)
+	return string(resp.Kvs[0].Value), nil
 }
 
 func getHostsHistory() vHostsList {

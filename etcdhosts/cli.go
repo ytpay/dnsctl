@@ -1,11 +1,13 @@
 package etcdhosts
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/mritd/promptx"
 
@@ -22,7 +24,11 @@ func Edit() {
 		_ = os.Remove(f.Name())
 	}()
 
-	_, err = fmt.Fprint(f, getHosts())
+	hosts, err := getHosts(-1)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	_, err = fmt.Fprint(f, hosts)
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -50,17 +56,39 @@ func Edit() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	putHosts(string(raw))
+
+	if hosts != string(raw) {
+		p := promptx.NewDefaultPrompt(func(line []rune) error {
+			if strings.ToLower(strings.TrimSpace(string(line))) != "y" && strings.ToLower(strings.TrimSpace(string(line))) != "n" {
+				return errors.New("Please input 'y' or 'n'.")
+			} else {
+				return nil
+			}
+		}, "Are you sure you want to update dns records(y/n)?")
+
+		if strings.ToLower(p.Run()) == "y" {
+			putHosts(string(raw))
+		} else {
+			logrus.Info("dns record has not been modified.")
+		}
+	} else {
+		logrus.Warn("dns record has not been modified.")
+	}
+
 }
 
-func Dump(f string) {
-	if f != "" {
-		err := ioutil.WriteFile(f, []byte(getHosts()), 0644)
+func Dump(outFile string, revision int64) {
+	hosts, err := getHosts(revision)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	if outFile != "" {
+		err := ioutil.WriteFile(outFile, []byte(hosts), 0644)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 	} else {
-		fmt.Print(getHosts())
+		fmt.Println(hosts)
 	}
 }
 
@@ -72,7 +100,7 @@ func Upload(f string) {
 	putHosts(string(bs))
 }
 
-func History() {
+func Version() {
 	vl := getHostsHistory()
 	cfg := &promptx.SelectConfig{
 		ActiveTpl:    `»  {{ .Version | cyan }} {{ "=> Revision: " | cyan }}{{ .Revision | cyan }}`,
@@ -82,7 +110,7 @@ func History() {
 		DisPlaySize:  9,
 		DetailsTpl: `
 --------- Etcd Hosts ----------
-{{ "Version:" | faint }}	{{ .Version }}
+{{ "Hosts Version:" | faint }}	{{ .Version }}
 {{ "Etcd Revision:" | faint }}	{{ .Revision }}`,
 	}
 

@@ -5,15 +5,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var historyCmd = &cobra.Command{
-	Use:    "history",
-	Short:  "show hosts history",
+var versionCmd = &cobra.Command{
+	Use:    "version",
+	Short:  "show hosts version",
 	PreRun: initConfig,
 	Run: func(cmd *cobra.Command, args []string) {
-		etcdhosts.History()
+		etcdhosts.Version()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(historyCmd)
+	rootCmd.AddCommand(versionCmd)
 }
