@@ -4,8 +4,10 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"errors"
 	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -30,15 +32,21 @@ func (v vHostsList) Len() int           { return len(v) }
 func (v vHostsList) Less(i, j int) bool { return v[i].Version > v[j].Version }
 
 func client() *clientv3.Client {
-
-	home, err := homedir.Dir()
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	var caBs, certBs, keyBs []byte
 
 	ca := viper.GetString("etcd.ca")
 	cert := viper.GetString("etcd.cert")
 	key := viper.GetString("etcd.key")
+
+	if ca == "" || cert == "" || key == "" {
+		logrus.Fatal("certs config is blank")
+	}
+
+	// if config is filepath, replace "~" to real home dir
+	home, err := homedir.Dir()
+	if err != nil {
+		logrus.Fatal(err)
+	}
 
 	if strings.HasPrefix(ca, "~") {
 		ca = strings.Replace(ca, "~", home, 1)
@@ -50,18 +58,43 @@ func client() *clientv3.Client {
 		key = strings.Replace(key, "~", home, 1)
 	}
 
-	etcdCA, err := ioutil.ReadFile(ca)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	etcdClientCert, err := tls.LoadX509KeyPair(cert, key)
-	if err != nil {
-		logrus.Fatal(err)
+	// check config is base64 data or filepath
+	_, err = os.Stat(ca)
+	if err == nil {
+		caBs, err = ioutil.ReadFile(ca)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		certBs, err = ioutil.ReadFile(cert)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		keyBs, err = ioutil.ReadFile(key)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+	} else {
+		caBs, err = base64.StdEncoding.DecodeString(ca)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		certBs, err = base64.StdEncoding.DecodeString(cert)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		keyBs, err = base64.StdEncoding.DecodeString(key)
+		if err != nil {
+			logrus.Fatal(err)
+		}
 	}
 
 	rootCertPool := x509.NewCertPool()
-	rootCertPool.AppendCertsFromPEM(etcdCA)
+	rootCertPool.AppendCertsFromPEM(caBs)
+
+	etcdClientCert, err := tls.X509KeyPair(certBs, keyBs)
+	if err != nil {
+		logrus.Fatal(err)
+	}
 
 	cli, err := clientv3.New(clientv3.Config{
 		Endpoints:   viper.GetStringSlice("etcd.endpoints"),
