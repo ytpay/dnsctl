@@ -82,13 +82,12 @@ func Dump(outFile string, revision int64) {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	if outFile != "" {
-		err := ioutil.WriteFile(outFile, []byte(hosts), 0644)
-		if err != nil {
+	if outFile == "" || strings.ToLower(outFile) == "stdout" {
+		fmt.Println(hosts)
+	}else {
+		if err := ioutil.WriteFile(outFile, []byte(hosts), 0644);err != nil {
 			logrus.Fatal(err)
 		}
-	} else {
-		fmt.Println(hosts)
 	}
 }
 
