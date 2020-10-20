@@ -5,23 +5,23 @@ COMMIT_SHA1     := $(shell git rev-parse HEAD)
 all: clean
 	gox -osarch="darwin/amd64 linux/386 linux/amd64" \
         -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}" \
-    	-ldflags   "-X 'github.com/gozap/dnsctl/cmd.Version=${BUILD_VERSION}' \
-                    -X 'github.com/gozap/dnsctl/cmd.BuildDate=${BUILD_DATE}' \
-                    -X 'github.com/gozap/dnsctl/cmd.CommitID=${COMMIT_SHA1}'"
+    	-ldflags   "-X 'github.com/ytpay/dnsctl/cmd.Version=${BUILD_VERSION}' \
+                    -X 'github.com/ytpay/dnsctl/cmd.BuildDate=${BUILD_DATE}' \
+                    -X 'github.com/ytpay/dnsctl/cmd.CommitID=${COMMIT_SHA1}'"
 
 release: all
-	ghr -u gozap -t $(GITHUB_TOKEN) -replace -recreate --debug ${BUILD_VERSION} dist
+	ghr -u ytpay -t $(GITHUB_TOKEN) -replace -recreate --debug ${BUILD_VERSION} dist
 
 pre-release: all
-	ghr -u gozap -t $(GITHUB_TOKEN) -replace -recreate -prerelease --debug ${BUILD_VERSION} dist
+	ghr -u ytpay -t $(GITHUB_TOKEN) -replace -recreate -prerelease --debug ${BUILD_VERSION} dist
 
 clean:
 	rm -rf dist
 
 install:
-	go install -ldflags "-X 'github.com/gozap/dnsctl/cmd.Version=${BUILD_VERSION}' \
-                         -X 'github.com/gozap/dnsctl/cmd.BuildDate=${BUILD_DATE}' \
-                         -X 'github.com/gozap/dnsctl/cmd.CommitID=${COMMIT_SHA1}'"
+	go install -ldflags "-X 'github.com/ytpay/dnsctl/cmd.Version=${BUILD_VERSION}' \
+                         -X 'github.com/ytpay/dnsctl/cmd.BuildDate=${BUILD_DATE}' \
+                         -X 'github.com/ytpay/dnsctl/cmd.CommitID=${COMMIT_SHA1}'"
 
 .PHONY: all release pre-release clean install
 

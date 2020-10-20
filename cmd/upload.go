@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/gozap/dnsctl/etcdhosts"
+	"github.com/ytpay/dnsctl/etcdhosts"
 	"github.com/spf13/cobra"
 )
 

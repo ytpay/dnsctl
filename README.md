@@ -1,6 +1,6 @@
 ## dnsctl
 
-> dnsctl 是一个简单的命令行工具用于控制 CoreDNS 的 [`etcdhost`](https://github.com/Gozap/etcdhosts) 插件，从而实现对 etcd 内 hosts 文件一处修改全局生效。
+> dnsctl 是一个简单的命令行工具用于控制 CoreDNS 的 [`etcdhost`](https://github.com/ytpay/etcdhosts) 插件，从而实现对 etcd 内 hosts 文件一处修改全局生效。
 
 ### 一、配置
 

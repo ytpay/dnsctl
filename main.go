@@ -1,6 +1,6 @@
 package main
 
-import "github.com/gozap/dnsctl/cmd"
+import "github.com/ytpay/dnsctl/cmd"
 
 func main() {
 	cmd.Execute()
